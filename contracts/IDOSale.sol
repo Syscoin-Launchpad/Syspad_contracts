@@ -241,8 +241,8 @@ contract IDOSale is ReentrancyGuard, Context, Ownable {
         require(availableTokensIDO > 0, "availableTokens must be > 0");
         require(_maxPurchase > 0, "_maxPurchase should be > 0");
         require(_hardCap > 0, "_hardCap should be > 0");
-        startDate = startDate;
-        endDate = endDate;
+        startDate = start;
+        endDate = end;
         maxPurchase = _maxPurchase * 10**18;
         hardCap = _hardCap * 10**18;
         _weiRaised = 0;
@@ -250,8 +250,12 @@ contract IDOSale is ReentrancyGuard, Context, Ownable {
 
     function stopIDO() external onlyOwner idoActive {
         endDate = 0;
-        startRefund = true;
-        refundStartDate = block.timestamp;
+        if (_weiRaised >= hardCap) {
+            _forwardFunds();
+        } else {
+            startRefund = true;
+            refundStartDate = block.timestamp;
+        }
     }
 
     //Pre-Sale
